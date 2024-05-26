@@ -9,7 +9,7 @@ from .forms import *
 from .logic.blueprint.blueprint import get_blueprint_deploymanifest
 from .logic.community import get_community
 from .logic.community.community import create_community, get_user_community
-from .utils.presignurl import get_pre_sign_url
+
 
 #
 
@@ -19,11 +19,6 @@ def load_server(app):
     @app.get('/')
     def health_check():
         return health_handler()
-
-    @app.get('/get-resign-url/{random_id}')
-    def get_pre_sign_url_route(random_id: str):
-        return get_pre_sign_url(random_id)
-
 
     # api for user to register
     @app.post('/user/signup', status_code=status.HTTP_201_CREATED)
