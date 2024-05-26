@@ -9,6 +9,7 @@ from .forms import *
 from .logic.blueprint.blueprint import get_blueprint_deploymanifest
 from .logic.community import get_community
 from .logic.community.community import create_community, get_user_community
+from .utils.presignsignature import generate_signature
 
 
 #
@@ -20,6 +21,10 @@ def load_server(app):
     def health_check():
         return health_handler()
 
+
+    @app.get("/image-upload/signature")
+    def get_image_upload_signature_route():
+        return generate_signature()
     # api for user to register
     @app.post('/user/signup', status_code=status.HTTP_201_CREATED)
     def user_signup_route(req: UserSignupForm):
