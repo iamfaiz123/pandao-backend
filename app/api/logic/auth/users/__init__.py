@@ -45,18 +45,15 @@ def user_sign_up(signup: UserSignupForm):
 
 
 def user_login_req(req: UserLogin):
-    # extract data from form
-    wallet_addr = req.public_address
-    name = req.name
-    user = User(name=name, public_address=wallet_addr)
-    conn.add(user)
     try:
         conn.commit()
-        response = conn.query(User).all()
+        response = conn.query(User).filter(User.public_address == req.public_address ).first()
         return response
     except IntegrityError:
         conn.rollback()
-        return {}
+        return {
+
+        }
     except Exception as e:
         conn.rollback()
         logging.error(e)
