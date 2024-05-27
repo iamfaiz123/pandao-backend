@@ -1,10 +1,13 @@
 import uuid
 import logging
+
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.orm import joinedload
+
 from app.api.forms import *
 from app.api.utils import ApiError
-from models import dbsession as conn, BluePrint, BluePrintTerms, BluePrintMethod, DeployManifest, DeployManifestArgs
+from models import dbsession as conn, BluePrintTerms, BluePrintMethod, DeployManifest, DeployManifestArgs, BluePrint
 from fastapi import HTTPException
 
 # Configure logging
@@ -111,35 +114,8 @@ def get_blueprints():
 # Function to get a blueprint by slug
 def get_blueprint_detail(slug: str):
     try:
-        # Query the blueprint by slug
-        blueprint = conn.query(BluePrint).filter(BluePrint.slug == slug).first()
-
-        return blueprint
-
-        if not blueprint:
-            return None
-
-        # Convert SQLAlchemy object to Pydantic model
-        blueprint_output = BluePrintModel.from_orm(blueprint)
-
-        # Manually load terms and methods to ensure nested data is included
-        terms = conn.query(Terms).filter(Terms.blueprint_slug == slug).all()
-        methods = conn.query(Methods).filter(Methods.blueprint_slug == slug).all()
-
-        terms_models = [TermsModel.from_orm(term) for term in terms]
-        methods_models = []
-
-        for method in methods:
-            args = conn.query(MethodArgs).filter(MethodArgs.method_id == method.id).all()
-            args_models = [MethodArgsModel.from_orm(arg) for arg in args]
-            method_model = MethodsModel.from_orm(method)
-            method_model.args = args_models
-            methods_models.append(method_model)
-
-        blueprint_output.terms = terms_models
-        blueprint_output.methods = methods_models
-
-        return blueprint_output
+        bp = conn.query(BluePrint).options(joinedload(BluePrint.terms)).options(joinedload(BluePrint.deploy_mainfest)).filter(BluePrint.slug == slug ).all()
+        return bp
     except SQLAlchemyError as e:
         # Log the error e
         print(e)
