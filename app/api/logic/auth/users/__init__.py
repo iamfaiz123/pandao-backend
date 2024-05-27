@@ -59,7 +59,7 @@ def user_login_req(req: UserLogin):
         logging.error(e)
         return ApiError("Something went wrong, we're working on it", 500).as_http_response()
 
-
+##
 def get_user_detail(public_address: str):
     try:
         stmt = (select(User.public_address, User.name, UserMetaData.about, UserMetaData.image_url)
