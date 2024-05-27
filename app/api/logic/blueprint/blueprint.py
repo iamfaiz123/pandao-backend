@@ -114,7 +114,7 @@ def get_blueprints():
 # Function to get a blueprint by slug
 def get_blueprint_detail(slug: str):
     try:
-        bp = conn.query(BluePrint).options(joinedload(BluePrint.terms)).options(joinedload(BluePrint.deploy_mainfest)).filter(BluePrint.slug == slug ).all()
+        bp = conn.query(BluePrint).options(joinedload(BluePrint.terms)).options(joinedload(BluePrint.deploy_mainfest)).filter(BluePrint.slug == slug ).first()
         return bp
     except SQLAlchemyError as e:
         # Log the error e
