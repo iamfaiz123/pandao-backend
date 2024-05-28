@@ -81,8 +81,8 @@ def get_user_detail(public_address: str):
                 'name': name,
                 'about': about,
                 'image_url': img,
-                'website': website,
-                'twitter': x,
+                'website_url': website,
+                'x_url': x,
                 'linkedin': linkedin,
                 'tiktok': tiktok
             }
