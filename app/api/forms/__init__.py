@@ -20,6 +20,12 @@ class UserProfileUpdate(BaseModel):
     about: Optional[str] = Field(..., description="user updated description")
     image_url: Optional[str] = Field(..., description="user updated image url")
     public_address: str = Field(..., description="user wallet public address")
+    website_url: Optional[str] = Field(..., description="user updated website url")
+    x_url: Optional[str] = Field(..., description="user updated x url")
+    linkedin : Optional[str] = Field(..., description="user updated x url")
+    tiktok : Optional[str] = Field(..., description="user updated tiktok url")
+
+
 
 ## forms related to user end
 

@@ -29,7 +29,12 @@ class UserMetaData(Base):
     user_address: Mapped[str] = Column(String, ForeignKey('users.public_address'), primary_key=True)
     about: Mapped[str] = Column(String)
     image_url: Mapped[str] = Column(String)
+    website_url: Mapped[str] = Column(String)
+    x_url: Mapped[str] = Column(String)
+    linkedin: Mapped[str] = Column(String)
+    tiktok: Mapped[str] = Column(String)
     user: Mapped["User"] = relationship("User", back_populates="usermetadata")
+
 
 
 class UserActivity(Base):
@@ -103,8 +108,7 @@ class Participants(Base):
 
 
 # Create an engine
-engine = create_engine(
-    'postgresql://pandao_backend_user:OGGePTvQNfp97DMRJfhp0c52WbBCZFBL@dpg-cp8s5etds78s73c8pqhg-a.oregon-postgres.render.com/pandao_backend')
+engine = create_engine('postgresql://pandao_backend_user:OGGePTvQNfp97DMRJfhp0c52WbBCZFBL@dpg-cp8s5etds78s73c8pqhg-a.oregon-postgres.render.com/pandao_backend')
 Base.metadata.create_all(engine)
 
 # Create a configured "Session" class

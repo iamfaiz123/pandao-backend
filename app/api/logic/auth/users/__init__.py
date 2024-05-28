@@ -115,6 +115,14 @@ def update_user_profile(req:UserProfileUpdate):
             user_meta_data.about = req.about
         if req.image_url is not None:
             user_meta_data.image_url = req.image_url
+        if req.tiktok is not None:
+            user_meta_data.tiktok = req.tiktok
+        if req.x_url is not None:
+            user_meta_data.x_url = req.x_url
+        # if req.website_url is not None:
+        #     user_meta_data.website_url = req.website_url
+        if req.linkedin is not None:
+            user_meta_data.linkedin = req.linkedin
 
         conn.commit()
         conn.refresh(user_meta_data)
