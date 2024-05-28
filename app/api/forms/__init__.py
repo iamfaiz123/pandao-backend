@@ -17,13 +17,13 @@ class UserLogin(BaseModel):
 
 
 class UserProfileUpdate(BaseModel):
-    about: Optional[str] = Field(..., description="user updated description")
-    image_url: Optional[str] = Field(..., description="user updated image url")
-    public_address: str = Field(..., description="user wallet public address")
-    website_url: Optional[str] = Field(..., description="user updated website url")
-    x_url: Optional[str] = Field(..., description="user updated x url")
-    linkedin : Optional[str] = Field(..., description="user updated x url")
-    tiktok : Optional[str] = Field(..., description="user updated tiktok url")
+    about: Optional[str] = Field(None, description="User updated description")
+    image_url: Optional[str] = Field(None, description="User updated image URL")
+    public_address: str = Field(..., description="User wallet public address")
+    website_url: Optional[str] = Field(None, description="User updated website URL")
+    x_url: Optional[str] = Field(None, description="User updated X (Twitter) URL")
+    linkedin: Optional[str] = Field(None, description="User updated LinkedIn URL")
+    tiktok: Optional[str] = Field(None, description="User updated TikTok URL")
 
 
 

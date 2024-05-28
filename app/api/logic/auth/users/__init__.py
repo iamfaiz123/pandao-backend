@@ -47,7 +47,7 @@ def user_sign_up(signup: UserSignupForm):
 def user_login_req(req: UserLogin):
     try:
         conn.commit()
-        response = conn.query(User).filter(User.public_address == req.public_address ).first()
+        response = conn.query(User).filter(User.public_address == req.public_address).first()
         return response
     except IntegrityError:
         conn.rollback()
@@ -59,11 +59,15 @@ def user_login_req(req: UserLogin):
         logging.error(e)
         return ApiError("Something went wrong, we're working on it", 500).as_http_response()
 
+
 ##
 def get_user_detail(public_address: str):
     try:
-        stmt = (select(User.public_address, User.name, UserMetaData.about, UserMetaData.image_url)
-                .join(UserMetaData, User.public_address == UserMetaData.user_address)).where(User.public_address == public_address)
+        stmt = (
+            select(User.public_address, User.name, UserMetaData.about, UserMetaData.image_url, UserMetaData.website_url,
+                   UserMetaData.x_url, UserMetaData.linkedin, UserMetaData.tiktok)
+            .join(UserMetaData, User.public_address == UserMetaData.user_address)).where(
+            User.public_address == public_address)
         result = conn.execute(stmt).first()
         if result is None:
             return {
@@ -71,12 +75,16 @@ def get_user_detail(public_address: str):
                 "cause": "user with these credentials does not exist"
             }
         else:
-            pub_addr, name, about, img = result
+            pub_addr, name, about, img, website, x, linkedin, tiktok = result
             return {
                 'public_address': pub_addr,
                 'name': name,
                 'about': about,
-                'image_url': img
+                'image_url': img,
+                'website': website,
+                'twitter': x,
+                'linkedin': linkedin,
+                'tiktok': tiktok
             }
 
     except Exception as e:
@@ -102,7 +110,8 @@ def check_user_exist(public_address: str):
         logging.error("Error getting user signup status: %s", e)
         raise HTTPException()
 
-def update_user_profile(req:UserProfileUpdate):
+
+def update_user_profile(req: UserProfileUpdate):
     try:
         user_meta_data = conn.query(UserMetaData).filter(UserMetaData.user_address == req.public_address).first()
         if user_meta_data is None:
@@ -132,5 +141,3 @@ def update_user_profile(req:UserProfileUpdate):
         conn.rollback()
         logging.error(e)
         return ApiError("Something went wrong, we're working on it", 500).as_http_response()
-
-
