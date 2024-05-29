@@ -3,14 +3,15 @@ import uuid
 from fastapi import FastAPI
 from starlette import status
 
-from .forms.community import CreateCommunityForm
+from .forms.community import CreateCommunityForm, CommunityParticipant
 from .logic import health as health_handler
 from .logic.auth.users import user_login_req, user_sign_up, check_user_exist, get_user_detail, update_user_profile
 from .logic.blueprint import get_blueprints, add_blueprint as add_blueprint_logic, get_blueprint_detail
 from .forms import *
 from .logic.blueprint.blueprint import get_blueprint_deploymanifest
 from .logic.community import get_community
-from .logic.community.community import create_community, get_user_community
+from .logic.community.community import create_community, get_user_community, user_participate_in_community, \
+    get_community_participants, get_single_community
 from .utils.presignsignature import generate_signature
 
 
@@ -69,17 +70,27 @@ def load_server(app):
         add_blueprint_logic(req)
 
     @app.post('/community', summary='create a new community')
-    def create_community_route(req:CreateCommunityForm):
+    def create_community_route(req: CreateCommunityForm):
         return create_community(req)
+
     @app.get('/community', summary="get communities of the platform ", description="get communities of platform")
     def get_community_route():
         return get_community()
+
+    @app.get('/community/detail/{c_id}', summary="get community detail")
+    def get_community_detail_route(c_id: uuid.UUID):
+        return get_single_community(c_id)
+
 
     @app.get('/community/{user_addr}', summary="get communities of the platform ",
              description="get communities of platform")
     def get_community_user_route(user_addr: str):
         return get_user_community(user_addr)
 
-    # @app.post('/community', summary="create a community on platform ", description="create community on platform")
-    # def post_community_route(req: CommunityCreate):
-    #     create_community(req)
+    @app.post('/community/participant', summary="user join a community")
+    def join_community(req: CommunityParticipant):
+        return user_participate_in_community(req.participant_address, req.community_id)
+
+    @app.get('/community/participant/{c_id}', summary="user join a community")
+    def get_community_participant_route(c_id: uuid.UUID):
+        return get_community_participants(c_id)
