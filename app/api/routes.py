@@ -2,6 +2,8 @@ import uuid
 
 from fastapi import FastAPI
 from starlette import status
+
+from .forms.community import CreateCommunityForm
 from .logic import health as health_handler
 from .logic.auth.users import user_login_req, user_sign_up, check_user_exist, get_user_detail, update_user_profile
 from .logic.blueprint import get_blueprints, add_blueprint as add_blueprint_logic, get_blueprint_detail
@@ -21,10 +23,10 @@ def load_server(app):
     def health_check():
         return health_handler()
 
-
     @app.get("/image-upload/signature")
     def get_image_upload_signature_route():
         return generate_signature()
+
     # api for user to register
     @app.post('/user/signup', status_code=status.HTTP_201_CREATED)
     def user_signup_route(req: UserSignupForm):
@@ -66,6 +68,9 @@ def load_server(app):
     def add_blueprint_route(req: BlurPrintForm):
         add_blueprint_logic(req)
 
+    @app.post('/community', summary='create a new community')
+    def create_community_route(req:CreateCommunityForm):
+        return create_community(req)
     @app.get('/community', summary="get communities of the platform ", description="get communities of platform")
     def get_community_route():
         return get_community()
