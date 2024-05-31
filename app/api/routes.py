@@ -3,7 +3,7 @@ import uuid
 from fastapi import FastAPI
 from starlette import status
 
-from .forms.community import CreateCommunityForm, CommunityParticipant
+from .forms.community import CreateCommunityForm, CommunityParticipant, CommunityComment
 from .logic import health as health_handler
 from .logic.auth.users import user_login_req, user_sign_up, check_user_exist, get_user_detail, update_user_profile
 from .logic.blueprint import get_blueprints, add_blueprint as add_blueprint_logic, get_blueprint_detail
@@ -11,7 +11,8 @@ from .forms import *
 from .logic.blueprint.blueprint import get_blueprint_deploymanifest
 from .logic.community import get_community
 from .logic.community.community import create_community, get_user_community, user_participate_in_community, \
-    get_community_participants, get_single_community, check_user_community_status
+    get_community_participants, get_single_community, check_user_community_status, get_community_comments, \
+    add_community_comment
 from .utils.presignsignature import generate_signature
 
 
@@ -97,3 +98,11 @@ def load_server(app):
     @app.get('/community/participant/{c_id}', summary="user join a community")
     def get_community_participant_route(c_id: uuid.UUID):
         return get_community_participants(c_id)
+
+    @app.get('/community/comments/{c_id}',summary="get comments of user community")
+    def get_community_route(c_id: uuid.UUID):
+        return get_community_comments(c_id)
+
+    @app.post('/community/comment',summary='add comment on community')
+    def add_community_comment_route(req:CommunityComment):
+        return add_community_comment(req)

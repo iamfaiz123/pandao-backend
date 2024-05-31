@@ -15,3 +15,9 @@ class CreateCommunityForm(BaseModel):
 class CommunityParticipant(BaseModel):
     community_id: uuid.UUID = Field(..., description="community id")
     participant_address: str = Field(..., description="participant id")
+
+
+class CommunityComment(BaseModel):
+    user_addr: str = Field(..., description="user address of the community")
+    comment: str = Field(..., description="description of the community")
+    community_id: uuid.UUID = Field(..., description="community id")

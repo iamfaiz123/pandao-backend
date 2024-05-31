@@ -58,6 +58,7 @@ class CommunityComments(Base):
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"))
     commented_by: Mapped[str] = mapped_column(String, ForeignKey("users.public_address"))
+    # commented_at: Mapped[DateTime] = Column(DateTime, default=func.now())
     comment: Mapped[str] = mapped_column(String)
     community: Mapped["Community"] = relationship("Community", back_populates="community_comment")
 

@@ -5,9 +5,9 @@ from select import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 
-from app.api.forms.community import CreateCommunityForm
+from app.api.forms.community import CreateCommunityForm, CommunityComment
 from models import dbsession as conn, BluePrint, Community as Com, User, CommunityParticipant, UserMetaData, \
-    Participants
+    Participants, CommunityComments
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -120,7 +120,55 @@ def check_user_community_status(user_addr: str, community_id: uuid.UUID):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
+def get_community_comments(c_id: uuid.UUID):
+    # Join the tables
+    results = conn.query(CommunityComments.comment, User.name, UserMetaData.image_url).join(User,
+                                                                                            CommunityComments.commented_by == User.public_address).join(
+        UserMetaData, User.public_address == UserMetaData.user_address).filter(
+        CommunityComments.community_id == c_id).all()
 
+    # Format the response
+    comments = [
+        {
+            "comment": row.comment,
+            "user_name": row.name,
+            "user_image": row.image_url
+        }
+        for row in results
+    ]
+
+    return comments
+
+
+def add_community_comment(req: CommunityComment):
+    try:
+        c_id = req.community_id
+        u_adr = req.user_addr
+        c = req.comment
+
+        new_comment = CommunityComments(
+            community_id=c_id,
+            commented_by=u_adr,
+            comment=c
+        )
+        conn.add(new_comment)
+        conn.commit()
+
+    except IntegrityError as e:
+        conn.rollback()
+        logger.error(f"Integrity error occurred: {e}")
+        raise HTTPException(status_code=400,
+                            detail="Integrity error: possibly duplicate entry or foreign key constraint.")
+
+    except SQLAlchemyError as e:
+        conn.rollback()
+        logger.error(f"SQLAlchemy error occurred: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+    except Exception as e:
+        conn.rollback()
+        logger.error(f"Unexpected error occurred: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 # error handle
