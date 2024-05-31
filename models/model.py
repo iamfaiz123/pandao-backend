@@ -63,6 +63,7 @@ class CommunityComments(Base):
 
 
 class CommunityParticipant(Base):
+    user_addr = None
     __tablename__ = 'community_participant'
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     participant: Mapped[str] = Column(String, ForeignKey("users.public_address"))

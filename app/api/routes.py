@@ -11,7 +11,7 @@ from .forms import *
 from .logic.blueprint.blueprint import get_blueprint_deploymanifest
 from .logic.community import get_community
 from .logic.community.community import create_community, get_user_community, user_participate_in_community, \
-    get_community_participants, get_single_community
+    get_community_participants, get_single_community, check_user_community_status
 from .utils.presignsignature import generate_signature
 
 
@@ -81,11 +81,14 @@ def load_server(app):
     def get_community_detail_route(c_id: uuid.UUID):
         return get_single_community(c_id)
 
+    @app.get('/community/check/user_status', summary="check if user is participant of community")
+    def check_user_community_status_route(user_addr: str, community_id: uuid.UUID):
+        return check_user_community_status(user_addr, community_id)
 
-    @app.get('/community/{user_addr}', summary="get communities of the platform ",
-             description="get communities of platform")
-    def get_community_user_route(user_addr: str):
-        return get_user_community(user_addr)
+    # @app.get('/community/{user_addr}', summary="get communities of the platform ",
+    #          description="get communities of platform")
+    # def get_community_user_route(user_addr: str):
+    #     return get_user_community(user_addr)
 
     @app.post('/community/participant', summary="user join a community")
     def join_community(req: CommunityParticipant):
