@@ -122,7 +122,7 @@ def check_user_community_status(user_addr: str, community_id: uuid.UUID):
 
 def get_community_comments(c_id: uuid.UUID):
     # Join the tables
-    results = conn.query(CommunityComments.comment, User.name, UserMetaData.image_url).join(User,
+    results = conn.query(CommunityComments.comment, User.name, UserMetaData.image_url,User.public_address).join(User,
                                                                                             CommunityComments.commented_by == User.public_address).join(
         UserMetaData, User.public_address == UserMetaData.user_address).filter(
         CommunityComments.community_id == c_id).all()
@@ -132,7 +132,8 @@ def get_community_comments(c_id: uuid.UUID):
         {
             "comment": row.comment,
             "user_name": row.name,
-            "user_image": row.image_url
+            "user_image": row.image_url,
+            "user_address":row.public_address,
         }
         for row in results
     ]
