@@ -121,7 +121,7 @@ def get_blueprint_detail(slug: str):
     try:
         # Query the blueprint by slug
 
-        blueprint = conn.query(BluePrint).options(joinedload(BluePrint.deploy_mainfest),joinedload(BluePrint.terms)).filter(BluePrint.slug == slug).first()
+        blueprint = conn.query(BluePrint).options(joinedload(BluePrint.deploy_manifest),joinedload(BluePrint.terms)).filter(BluePrint.slug == slug).first()
 
 
         if not blueprint:

@@ -50,14 +50,14 @@ class BluePrint(Base):
     # define relationships
     terms: Mapped[list["BluePrintTerms"]] = relationship("BluePrintTerms", back_populates="blueprint")
     methods: Mapped[list["BluePrintMethod"]] = relationship("BluePrintMethod", back_populates="blueprint")
-    deploy_mainfest: Mapped["DeployManifest"] = relationship("DeployManifest", back_populates="blueprint")
+    deploy_manifest: Mapped["DeployManifest"] = relationship("DeployManifest", back_populates="blueprint")
 
 
 class DeployManifest(Base):
     __tablename__ = 'deploymanifest'
     manifest: Mapped[str] = Column(String, primary_key=True)
     blueprint_slug: Mapped[str] = Column(String, ForeignKey('blueprint.slug'), unique=True)
-    blueprint: Mapped['BluePrint'] = relationship("BluePrint", back_populates="deploy_mainfest")
+    blueprint: Mapped['BluePrint'] = relationship("BluePrint", back_populates="deploy_manifest")
     deploymanifestargs: Mapped[list['DeployManifestArgs']] = relationship("DeployManifestArgs", back_populates="manifest")
 
 class DeployManifestArgs(Base):
