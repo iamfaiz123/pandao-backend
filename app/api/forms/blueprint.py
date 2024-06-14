@@ -10,13 +10,17 @@ class ValueType(Enum):
     STRING = "STRING"
 
 
+class CommunityGovernance(Enum):
+    TokenWeight = 'TOKEN_WEIGHT'
+
+
 class ManiFestArgsForm(BaseModel):
     key: str = Field(..., description="key to replace in transaction manifest")
     value: ValueType = Field(..., description="type of the value")
 
 
 class DeployManifestForm(BaseModel):
-    mainfest: str = Field(..., description="deploy manifest of the form")
+    manifest: str = Field(..., description="deploy manifest of the form")
     manifest_args: List[ManiFestArgsForm] = Field(description="args for the manifest")
 
 
@@ -34,4 +38,8 @@ class BlurPrintForm(BaseModel):
     deploy_manifest: DeployManifestForm
 
 
-
+# class DeployCommunity(BaseModel):
+#     tx_id: str = Field(..., description="The transaction id of the deployed community")
+#     name: str = Field(..., description='the name of the community')
+#     description: str = Field(..., description='description of the community')
+#     CommunityGovernance: CommunityGovernance = Field(..., description='the community governance')

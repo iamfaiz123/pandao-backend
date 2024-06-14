@@ -2,6 +2,8 @@ import uuid
 import logging
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.orm import joinedload
+
 from app.api.forms import *
 from app.api.utils import ApiError
 from models import dbsession as conn, BluePrint, BluePrintTerms, BluePrintMethod, DeployManifest, DeployManifestArgs
@@ -34,7 +36,7 @@ def add_blueprint(req: BlurPrintForm):
 
         if req.deploy_manifest:
             manifest = DeployManifest(
-                manifest=req.deploy_manifest.mainfest,
+                manifest=req.deploy_manifest.manifest,
                 blueprint_slug=req.slug
             )
             manifest_args = []
@@ -46,7 +48,7 @@ def add_blueprint(req: BlurPrintForm):
                 manifest_args.append(arg)
             manifest.deploymanifestargs = manifest_args
 
-        new_blueprint.deploy_mainfest = manifest
+        new_blueprint.deploy_manifest = manifest
 
         # Add the new blueprint to the conn and commit
         conn.add(new_blueprint)
@@ -73,12 +75,18 @@ def add_blueprint(req: BlurPrintForm):
 
 def get_blueprint_deploymanifest(slug: str):
     try:
-        stmt = (select(BluePrint, DeployManifest, DeployManifestArgs).join(DeployManifest,
-                                                                                               BluePrint.slug == DeployManifest.blueprint_slug).join(
-            DeployManifestArgs, DeployManifestArgs.blueprint_slug == DeployManifest.blueprint_slug)).where(
-            BluePrint.slug == slug)
+        stmt = (
+            select(BluePrint.slug, DeployManifest.blueprint_slug, DeployManifestArgs)
+            .join(DeployManifest, BluePrint.slug == DeployManifest.blueprint_slug)
+            .join(DeployManifestArgs, DeployManifestArgs.blueprint_slug == DeployManifest.blueprint_slug)
+            .where(BluePrint.slug == slug)
+        )
 
-        blueprint, manifest, args = conn.execute(stmt).first()
+        bp,dm,dma = conn.execute(stmt).first()
+        print(str(bp))
+        print(dm)
+        print(dma)
+        return {}
 
         return {
             'blueprint': blueprint,
@@ -112,12 +120,14 @@ def get_blueprints():
 def get_blueprint_detail(slug: str):
     try:
         # Query the blueprint by slug
-        blueprint = conn.query(BluePrint).filter(BluePrint.slug == slug).first()
 
-        return blueprint
+        blueprint = conn.query(BluePrint).options(joinedload(BluePrint.deploy_mainfest),joinedload(BluePrint.terms)).filter(BluePrint.slug == slug).first()
+
 
         if not blueprint:
             return None
+        else:
+            return blueprint
 
         # Convert SQLAlchemy object to Pydantic model
         blueprint_output = BluePrintModel.from_orm(blueprint)
