@@ -3,6 +3,7 @@ import uuid
 from fastapi import FastAPI
 from starlette import status
 
+from .forms.blueprint import DeployCommunity
 # from .forms.blueprint import DeployCommunity
 from .logic import health as health_handler
 from .logic.auth.users import user_login_req, user_sign_up, check_user_exist, get_user_detail
@@ -79,6 +80,6 @@ def load_server(app):
     # def deploy_token_weighted_dao(req:DeployCommunity):
     #     return create_community(req)
 
-    # @app.post('/community', summary="create a community on platform ", description="create community on platform")
-    # def post_community_route(req: CommunityCreate):
-    #     create_community(req)
+    @app.post('/community', summary="create a community on platform ", description="create community on platform")
+    def post_community_route(req: DeployCommunity):
+        create_community(req)

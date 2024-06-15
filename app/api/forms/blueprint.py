@@ -10,7 +10,7 @@ class ValueType(Enum):
     STRING = "STRING"
 
 
-class CommunityGovernance(Enum):
+class CommunityGovernanceType(Enum):
     TokenWeight = 'TOKEN_WEIGHT'
 
 
@@ -38,8 +38,9 @@ class BlurPrintForm(BaseModel):
     deploy_manifest: DeployManifestForm
 
 
-# class DeployCommunity(BaseModel):
-#     tx_id: str = Field(..., description="The transaction id of the deployed community")
-#     name: str = Field(..., description='the name of the community')
-#     description: str = Field(..., description='description of the community')
-#     CommunityGovernance: CommunityGovernance = Field(..., description='the community governance')
+class DeployCommunity(BaseModel):
+    tx_id: str = Field(..., description="The transaction id of the deployed community")
+    name: str = Field(..., description='the name of the community')
+    description: str = Field(..., description='description of the community')
+    CommunityGovernance: CommunityGovernanceType = Field(..., description='the community governance')
+    user_address:str

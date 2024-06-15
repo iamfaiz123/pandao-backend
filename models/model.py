@@ -92,6 +92,7 @@ class Community(Base):
     name = Column(String(128))
     component_address = Column(String(2048))
     description = Column(String)
+    blueprint_slug: Mapped[str] = mapped_column(ForeignKey("blueprint.slug"))
     token_address = Column(String)
     owner_token_address = Column(String)
     owner_address = Column(String, ForeignKey('users.public_address'))
