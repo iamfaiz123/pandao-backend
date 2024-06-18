@@ -34,9 +34,6 @@ def add_blueprint(req: BlurPrintForm):
                 )
                 new_blueprint.terms.append(new_term)
 
-
-
-
         # Add the new blueprint to the conn and commit
         conn.add(new_blueprint)
         conn.commit()
@@ -60,7 +57,12 @@ def add_blueprint(req: BlurPrintForm):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-
-
-# Function to get a blueprint by slug
-
+# function to get all blueprints
+def get_all_blueprints():
+    try:
+        result = conn.query(BluePrint).all()
+        return result
+    except SQLAlchemyError as e:
+        conn.rollback()
+        logger.error(f"SQLAlchemy error occurred: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")

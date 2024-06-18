@@ -11,6 +11,7 @@ from .logic.activity.user_activity import get_user_activity
 from .logic.auth.users import user_login_req, user_sign_up, check_user_exist, get_user_detail
 from .logic.blueprint import add_blueprint as add_blueprint_logic
 from .forms import *
+from .logic.blueprint.blueprint import get_all_blueprints
 
 from .logic.community import get_community
 from .logic.community.community import create_community, get_user_community
@@ -51,6 +52,10 @@ def load_server(app):
     @app.post('/blueprint', summary="add a blueprint ", description="add blue print by admin", tags=(['blue-print']))
     def add_blueprint_route(req: BlurPrintForm):
         add_blueprint_logic(req)
+
+    @app.get('/blueprint',summary="get all blueprint on the platform")
+    def get_all_blueprint_route():
+        return get_all_blueprints()
 
     @app.get('/community', summary="get communities of the platform ", description="get communities of platform",
              tags=(['community']))
