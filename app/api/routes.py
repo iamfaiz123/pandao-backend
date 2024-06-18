@@ -7,7 +7,7 @@ from .forms.blueprint import DeployCommunity
 from .forms.transaction_manifest import TransactionSubmit
 # from .forms.blueprint import DeployCommunity
 from .logic import health as health_handler
-from .logic.activity.user_activity import get_user_activity
+from .logic.activity.user_activity import get_user_activity, UserActivityModel
 from .logic.auth.users import user_login_req, user_sign_up, check_user_exist, get_user_detail
 from .logic.blueprint import add_blueprint as add_blueprint_logic
 from .forms import *
@@ -75,7 +75,7 @@ def load_server(app):
     #           description="send this to server after deploying a community")
     # def deploy_token_weighted_dao(req:DeployCommunity):
     #     return create_community(req)
-    @app.get('/submit-tx',summary="submits a transaction on the platform", description="submits a transaction on the platform")
+    @app.post('/submit-tx',summary="submits a transaction on the platform", description="submits a transaction on the platform")
     def callme(req:TransactionSubmit):
         return token_bucket_deploy_event_listener(req.tx_id,req.user_address)
 

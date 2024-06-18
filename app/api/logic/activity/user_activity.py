@@ -11,11 +11,20 @@ from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.exc import SQLAlchemyError
 
 
+from pydantic import BaseModel
+from typing import List
+
+class UserActivityModel(BaseModel):
+    transaction_id: str
+    user_address: str
+    name: str
+    image_url: str
+
 def get_user_activity():
     try:
+        response = []
         results = conn.query(
             UserActivity.transaction_id,
-            #UserActivity.nr,
             UserActivity.user_address,
             User.name,
             UserMetaData.image_url
@@ -24,7 +33,16 @@ def get_user_activity():
         ).join(
             UserMetaData, User.public_address == UserMetaData.user_address
         ).all()
-        return results
+        for data in results:
+            activity = {
+                'tx_id':data[0],
+                'user_address':data[1],
+                'user_name':data[2],
+                'user_image_url':data[3],
+            }
+            response.append(activity)
+        return response
+
     except SQLAlchemyError as e:
         # Log the error e
         print(e)

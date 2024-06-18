@@ -57,7 +57,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     name=metadata['community_name'],
                     component_address=metadata['component_address'],
                     description='some random description',
-                    blueprint_slug='token-weighted',
+                    blueprint_slug='token-weight',
                     token_address=metadata['token_address'],
                     owner_token_address=metadata['owner_token_address'],
                     owner_address=user_address,
@@ -71,7 +71,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                     transaction_info=f'created a {temp}',
                     user_address=user_address
                 )
-                conn.add(community, activity)
+                conn.add(community)
+                conn.add(activity)
                 conn.commit()
         except SQLAlchemyError as e:
             conn.rollback()
