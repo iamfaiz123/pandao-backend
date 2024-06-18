@@ -12,10 +12,6 @@ from sqlalchemy.sql import func
 
 Base = declarative_base()
 
-
-
-
-
 class User(Base):
     __tablename__ = 'users'
     name: Mapped[str] = Column(String)
@@ -23,14 +19,12 @@ class User(Base):
     last_login: Mapped[DateTime] = Column(DateTime, default=func.now())
     usermetadata: Mapped["UserMetaData"] = relationship("UserMetaData", back_populates="user")
 
-
 class UserMetaData(Base):
     __tablename__ = 'user_meta_data'
     user_address: Mapped[str] = Column(String, ForeignKey('users.public_address'), primary_key=True)
     about: Mapped[str] = Column(String)
     image_url: Mapped[str] = Column(String)
     user: Mapped["User"] = relationship("User", back_populates="usermetadata")
-
 
 class UserActivity(Base):
     __tablename__ = 'user_activity'
@@ -86,6 +80,15 @@ class Participants(Base):
     community_id = Column(UUID(as_uuid=True), ForeignKey('community.id'))
     user_addr = Column(String, ForeignKey('users.public_address'))
 
+
+class CommunityComments(Base):
+    __tablename__ = 'community_comments'
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    community_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("community.id"))
+    commented_by: Mapped[str] = mapped_column(String, ForeignKey("users.public_address"))
+    # commented_at: Mapped[DateTime] = Column(DateTime, default=func.now())
+    comment: Mapped[str] = mapped_column(String)
+    community: Mapped["Community"] = relationship("Community", back_populates="community_comment")
 
 # Create an engine
 engine = create_engine(

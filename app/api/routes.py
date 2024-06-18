@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from starlette import status
 
 from .forms.blueprint import DeployCommunity
+from .forms.community import CommunityParticipant, CommunityComment
 from .forms.transaction_manifest import TransactionSubmit
 # from .forms.blueprint import DeployCommunity
 from .logic import health as health_handler
@@ -14,7 +15,8 @@ from .forms import *
 from .logic.blueprint.blueprint import get_all_blueprints, get_blueprint
 
 from .logic.community import get_community
-from .logic.community.community import create_community, get_user_community
+from .logic.community.community import create_community, get_user_community, check_user_community_status, \
+    user_participate_in_community, get_community_participants, get_community_comments, add_community_comment
 from .logic.event_listener import token_bucket_deploy_event_listener
 from .utils.presignsignature import generate_signature
 
@@ -84,3 +86,29 @@ def load_server(app):
     @app.get('/activity',summary='get all the activity on the platform', description="get all the activity on the platform", tags = ( ['user-activity ']))
     def get_activity_route():
         return get_user_activity()
+
+
+    @app.get('/community/check/user_status', summary="check if user is participant of community" ,tags = ( ['community']))
+    def check_user_community_status_route(user_addr: str, community_id: uuid.UUID):
+        return check_user_community_status(user_addr, community_id)
+
+    # @app.get('/community/{user_addr}', summary="get communities of the platform ",
+    #          description="get communities of platform")
+    # def get_community_user_route(user_addr: str):
+    #     return get_user_community(user_addr)
+
+    @app.post('/community/participant', summary="user join a community",tags = ( ['community']))
+    def join_community(req: CommunityParticipant):
+        return user_participate_in_community(req.participant_address, req.community_id)
+
+    @app.get('/community/participant/{c_id}', summary="user join a community",tags = ( ['community']))
+    def get_community_participant_route(c_id: uuid.UUID):
+        return get_community_participants(c_id)
+
+    @app.get('/community/comments/{c_id}',summary="get comments of user community",tags = ( ['community']))
+    def get_community_route(c_id: uuid.UUID):
+        return get_community_comments(c_id)
+
+    @app.post('/community/comment',summary='add comment on community',tags = ( ['community']))
+    def add_community_comment_route(req:CommunityComment):
+        return add_community_comment(req)
