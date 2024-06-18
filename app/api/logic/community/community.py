@@ -75,8 +75,8 @@ class CommunityParticipant:
 def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
     try:
         # create new user participant
-        participant = CommunityParticipant(
-            participant=user_addr,
+        participant = Participants(
+            user_addr=user_addr,
             community_id=community_id,
 
         )
@@ -85,18 +85,18 @@ def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
 
     except IntegrityError as e:
         conn.rollback()
-        # logger.error(f"Integrity error occurred: {e}")
+        print(f"Integrity error occurred: {e}")
         raise HTTPException(status_code=400,
                             detail="Integrity error: possibly duplicate entry or foreign key constraint.")
 
     except SQLAlchemyError as e:
         conn.rollback()
-        # logger.error(f"SQLAlchemy error occurred: {e}")
+        print(f"SQLAlchemy error occurred: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
     except Exception as e:
         conn.rollback()
-        # logger.error(f"Unexpected error occurred: {e}")
+        print(f"Unexpected error occurred: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -104,8 +104,8 @@ def get_community_participants(community_id: UUID):
     result = (
         conn.query(User.public_address, User.name, UserMetaData.image_url)
         .join(UserMetaData, User.public_address == UserMetaData.user_address)
-        .join(CommunityParticipant, CommunityParticipant.participant == User.public_address)
-        .filter(CommunityParticipant.community_id == community_id)
+        .join(Participants, Participants.user_addr == User.public_address)
+        .filter(Participants.community_id == community_id)
         .all()
     )
 
