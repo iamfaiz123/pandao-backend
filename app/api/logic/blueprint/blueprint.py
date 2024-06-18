@@ -66,3 +66,13 @@ def get_all_blueprints():
         conn.rollback()
         logger.error(f"SQLAlchemy error occurred: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+def get_blueprint(slug: str):
+    try:
+        result = conn.query(BluePrint).options(joinedload(BluePrint.terms)).filter(BluePrint.slug == slug).first()
+        return result
+    except SQLAlchemyError as e:
+        conn.rollback()
+        logger.error(f"SQLAlchemy error occurred: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
