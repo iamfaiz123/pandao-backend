@@ -72,6 +72,7 @@ class Community(Base):
     owner_token_address = Column(String)
     image = Column(String)
     owner_address = Column(String, ForeignKey('users.public_address'))
+    community_comment: Mapped[list['CommunityComments']] = relationship("CommunityComments", back_populates="community")
 
 
 class Participants(Base):

@@ -23,10 +23,7 @@ class CommunityCreate:
 
 def get_community():
     try:
-        communities = conn.query(Com, User.name)\
-                        .join(User, Com.owner_address == User.public_address)\
-                        .all()
-        print(communities)
+        communities = conn.query(Com).all()
         return communities
     except SQLAlchemyError as e:
         # Log the error e
