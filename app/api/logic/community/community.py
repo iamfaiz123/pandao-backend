@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 
 from app.api.forms.blueprint import DeployCommunity
+from app.api.forms.community import CommunityComment
 # from app.api.forms.blueprint import DeployCommunity
 from models import dbsession as conn, BluePrint, Community as Com, User, Participants, UserMetaData, CommunityComments
 from fastapi import FastAPI, HTTPException, Depends
@@ -123,7 +124,6 @@ def get_community_participants(community_id: UUID):
     return res
 
 
-
 def check_user_community_status(user_addr: str, community_id: uuid.UUID):
     try:
         user_data = conn.query(CommunityParticipant).filter(CommunityParticipant.community_id == community_id,
@@ -155,8 +155,8 @@ def check_user_community_status(user_addr: str, community_id: uuid.UUID):
 
 def get_community_comments(c_id: uuid.UUID):
     # Join the tables
-    results = conn.query(CommunityComments.comment, User.name, UserMetaData.image_url,User.public_address).join(User,
-                                                                                            CommunityComments.commented_by == User.public_address).join(
+    results = conn.query(CommunityComments.comment, User.name, UserMetaData.image_url, User.public_address).join(User,
+                                                                                                                 CommunityComments.commented_by == User.public_address).join(
         UserMetaData, User.public_address == UserMetaData.user_address).filter(
         CommunityComments.community_id == c_id).all()
 
@@ -166,7 +166,7 @@ def get_community_comments(c_id: uuid.UUID):
             "comment": row.comment,
             "user_name": row.name,
             "user_image": row.image_url,
-            "user_address":row.public_address,
+            "user_address": row.public_address,
         }
         for row in results
     ]
@@ -174,8 +174,9 @@ def get_community_comments(c_id: uuid.UUID):
     return comments
 
 
-class CommunityComment:
-    pass
+def get_single_community(community_id: uuid.UUID):
+    communities = conn.query(Com).first()
+    return communities
 
 
 def add_community_comment(req: CommunityComment):
@@ -207,4 +208,3 @@ def add_community_comment(req: CommunityComment):
         conn.rollback()
 
         raise HTTPException(status_code=500, detail="Internal Server Error")
-

@@ -112,3 +112,9 @@ def load_server(app):
     @app.post('/community/comment',summary='add comment on community',tags = ( ['community']))
     def add_community_comment_route(req:CommunityComment):
         return add_community_comment(req)
+
+
+
+    @app.get('/community/detail/{c_id}', summary="get community detail")
+    def get_community_detail_route(c_id: uuid.UUID):
+        return get_single_community(c_id)
