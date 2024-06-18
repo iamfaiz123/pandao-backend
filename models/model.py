@@ -36,7 +36,7 @@ class UserActivity(Base):
     __tablename__ = 'user_activity'
     transaction_id: Mapped[str] = Column(String, primary_key=True)
     # this contains a basic info about a user transaction in the DAO
-    nr: Mapped[str] = Column(String)
+    transaction_info: Mapped[str] = Column(String)
     user_address: Mapped[str] = Column(String, ForeignKey('users.public_address'))
 
 
