@@ -52,6 +52,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
         try:
             if resources['event_type'] == 'DEPLOYMENT':
                 # create a new community
+                temp = metadata['community_name']
                 community = Community(
                     name=metadata['community_name'],
                     component_address=metadata['component_address'],
@@ -64,9 +65,10 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 )
 
                 # create user activity
+
                 activity = UserActivity(
                     transaction_id=tx_id,
-                    transaction_info=f'create a {metadata['community_name']}',
+                    transaction_info=f'created a {temp}',
                     user_address=user_address
                 )
                 conn.add(community, activity)
