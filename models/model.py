@@ -76,7 +76,7 @@ class Community(Base):
     blueprint_slug: Mapped[str] = mapped_column(ForeignKey("blueprint.slug"))
     token_address = Column(String)
     owner_token_address = Column(String)
-    # image = Column(String)
+    image = Column(String)
     owner_address = Column(String, ForeignKey('users.public_address'))
 
 
