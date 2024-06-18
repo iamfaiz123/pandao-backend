@@ -14,16 +14,6 @@ class CommunityGovernanceType(Enum):
     TokenWeight = 'TOKEN_WEIGHT'
 
 
-class ManiFestArgsForm(BaseModel):
-    key: str = Field(..., description="key to replace in transaction manifest")
-    value: ValueType = Field(..., description="type of the value")
-
-
-class DeployManifestForm(BaseModel):
-    manifest: str = Field(..., description="deploy manifest of the form")
-    manifest_args: List[ManiFestArgsForm] = Field(description="args for the manifest")
-
-
 class BluePrintTermsForm(BaseModel):
     term: str = Field(..., description="The heading  of the blueprint")
     description: str = Field(..., description="The description of the blueprint")
@@ -35,7 +25,6 @@ class BlurPrintForm(BaseModel):
     price: float = Field(..., description="price of the blue print")
     package_address: str = Field(..., description="package address of the blue print")
     terms: List[BluePrintTermsForm]
-    deploy_manifest: DeployManifestForm
 
 
 class DeployCommunity(BaseModel):
@@ -43,4 +32,4 @@ class DeployCommunity(BaseModel):
     name: str = Field(..., description='the name of the community')
     description: str = Field(..., description='description of the community')
     CommunityGovernance: CommunityGovernanceType = Field(..., description='the community governance')
-    user_address:str
+    user_address: str

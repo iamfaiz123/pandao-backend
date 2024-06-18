@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload
 
 from app.api.forms import *
 from app.api.utils import ApiError
-from models import dbsession as conn, BluePrint, BluePrintTerms, BluePrintMethod, DeployManifest, DeployManifestArgs
+from models import dbsession as conn, BluePrint, BluePrintTerms
 from fastapi import HTTPException
 
 # Configure logging
@@ -34,21 +34,8 @@ def add_blueprint(req: BlurPrintForm):
                 )
                 new_blueprint.terms.append(new_term)
 
-        if req.deploy_manifest:
-            manifest = DeployManifest(
-                manifest=req.deploy_manifest.manifest,
-                blueprint_slug=req.slug
-            )
-            manifest_args = []
-            for args in req.deploy_manifest.manifest_args:
-                arg = DeployManifestArgs(
-                    key=args.key,
-                    type=str(args.value)
-                )
-                manifest_args.append(arg)
-            manifest.deploymanifestargs = manifest_args
 
-        new_blueprint.deploy_manifest = manifest
+
 
         # Add the new blueprint to the conn and commit
         conn.add(new_blueprint)
@@ -73,84 +60,7 @@ def add_blueprint(req: BlurPrintForm):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-def get_blueprint_deploymanifest(slug: str):
-    try:
-        stmt = (
-            select(BluePrint.slug, DeployManifest.blueprint_slug, DeployManifestArgs)
-            .join(DeployManifest, BluePrint.slug == DeployManifest.blueprint_slug)
-            .join(DeployManifestArgs, DeployManifestArgs.blueprint_slug == DeployManifest.blueprint_slug)
-            .where(BluePrint.slug == slug)
-        )
-
-        bp,dm,dma = conn.execute(stmt).first()
-        print(str(bp))
-        print(dm)
-        print(dma)
-        return {}
-
-        return {
-            'blueprint': blueprint,
-            'manifest': manifest,
-            'agrs': args
-        }
-    except SQLAlchemyError as e:
-        conn.rollback()
-        logger.error(f"SQLAlchemy error occurred: {e}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-    except Exception as e:
-        conn.rollback()
-        logger.error(f"Unexpected error occurred: {e}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-def get_blueprints():
-    try:
-        blueprint = conn.query(BluePrint).join(BluePrintTerms, BluePrint.slug == BluePrintTerms.blueprint_slug).all()
-        if blueprint is None:
-            return {}
-        return blueprint
-    except SQLAlchemyError as e:
-        # Log the error e
-        print(e)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 # Function to get a blueprint by slug
-def get_blueprint_detail(slug: str):
-    try:
-        # Query the blueprint by slug
 
-        blueprint = conn.query(BluePrint).options(joinedload(BluePrint.deploy_manifest),joinedload(BluePrint.terms)).filter(BluePrint.slug == slug).first()
-
-
-        if not blueprint:
-            return None
-        else:
-            return blueprint
-
-        # Convert SQLAlchemy object to Pydantic model
-        blueprint_output = BluePrintModel.from_orm(blueprint)
-
-        # Manually load terms and methods to ensure nested data is included
-        terms = conn.query(Terms).filter(Terms.blueprint_slug == slug).all()
-        methods = conn.query(Methods).filter(Methods.blueprint_slug == slug).all()
-
-        terms_models = [TermsModel.from_orm(term) for term in terms]
-        methods_models = []
-
-        for method in methods:
-            args = conn.query(MethodArgs).filter(MethodArgs.method_id == method.id).all()
-            args_models = [MethodArgsModel.from_orm(arg) for arg in args]
-            method_model = MethodsModel.from_orm(method)
-            method_model.args = args_models
-            methods_models.append(method_model)
-
-        blueprint_output.terms = terms_models
-        blueprint_output.methods = methods_models
-
-        return blueprint_output
-    except SQLAlchemyError as e:
-        # Log the error e
-        print(e)
-        raise HTTPException(status_code=500, detail="Internal Server Error")

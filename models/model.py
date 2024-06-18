@@ -36,7 +36,7 @@ class UserActivity(Base):
     __tablename__ = 'user_activity'
     transaction_id: Mapped[str] = Column(String, primary_key=True)
     # this contains a basic info about a user transaction in the DAO
-    transaction_info: Mapped[str] = Column(String)
+    nr: Mapped[str] = Column(String)
     user_address: Mapped[str] = Column(String, ForeignKey('users.public_address'))
 
 
@@ -49,23 +49,10 @@ class BluePrint(Base):
 
     # define relationships
     terms: Mapped[list["BluePrintTerms"]] = relationship("BluePrintTerms", back_populates="blueprint")
-    methods: Mapped[list["BluePrintMethod"]] = relationship("BluePrintMethod", back_populates="blueprint")
-    deploy_manifest: Mapped["DeployManifest"] = relationship("DeployManifest", back_populates="blueprint")
 
 
-class DeployManifest(Base):
-    __tablename__ = 'deploymanifest'
-    manifest: Mapped[str] = Column(String, primary_key=True)
-    blueprint_slug: Mapped[str] = Column(String, ForeignKey('blueprint.slug'), unique=True)
-    blueprint: Mapped['BluePrint'] = relationship("BluePrint", back_populates="deploy_manifest")
-    deploymanifestargs: Mapped[list['DeployManifestArgs']] = relationship("DeployManifestArgs", back_populates="manifest")
 
-class DeployManifestArgs(Base):
-    __tablename__ = 'deploymanifestargs'
-    key: Mapped[str] = Column(String, primary_key=True)
-    type: Mapped[str] = Column(String)
-    blueprint_slug: Mapped[str] = Column(String, ForeignKey('deploymanifest.blueprint_slug'))
-    manifest: Mapped['DeployManifest'] = relationship("DeployManifest", back_populates="deploymanifestargs")
+
 
 
 class BluePrintTerms(Base):
@@ -77,13 +64,7 @@ class BluePrintTerms(Base):
     blueprint: Mapped["BluePrint"] = relationship("BluePrint", back_populates="terms")
 
 
-class BluePrintMethod(Base):
-    __tablename__ = 'blueprint_methods'
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    blueprint_slug: Mapped[str] = mapped_column(ForeignKey("blueprint.slug"))
-    name: Mapped[str] = mapped_column(String)
-    description: Mapped[str] = mapped_column(String)
-    blueprint: Mapped["BluePrint"] = relationship("BluePrint", back_populates="methods")
+
 
 
 class Community(Base):
@@ -95,6 +76,7 @@ class Community(Base):
     blueprint_slug: Mapped[str] = mapped_column(ForeignKey("blueprint.slug"))
     token_address = Column(String)
     owner_token_address = Column(String)
+    # image = Column(String)
     owner_address = Column(String, ForeignKey('users.public_address'))
 
 

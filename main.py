@@ -1,6 +1,9 @@
 from app import load_server
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.manifest_routes import transaction_manifest_routes
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -10,4 +13,5 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 # test
+transaction_manifest_routes(app)
 load_server(app)
