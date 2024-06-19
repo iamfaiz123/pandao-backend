@@ -24,6 +24,16 @@ class CommunityCreate:
     pass
 
 
+import random
+import string
+
+def generate_random_string(length=12):
+    # Define the characters to choose from (letters and digits)
+    characters = string.ascii_letters + string.digits
+    # Generate a random string of the specified length
+    random_string = ''.join(random.choice(characters) for _ in range(length))
+    return random_string
+
 def get_community():
     try:
         communities = conn.query(Com).all()
@@ -88,9 +98,10 @@ def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
 
         community = conn.query(Community).filter(Community.id == community_id).first()
         community_name = community.name
+        random_string = generate_random_string()
         # add comment activity
         activity = UserActivity(
-            transaction_id="",
+            transaction_id=random_string,
             transaction_info=f'participated in {community_name}',
             user_address=user_addr
         )
@@ -202,11 +213,12 @@ def add_community_comment(req: CommunityComment):
             comment=c
         )
         # get user data and community data
+        random_string = generate_random_string()
         community = conn.query(Community).filter(Community.id == c_id).first()
         community_name = community.name
         # add comment activity
         activity = UserActivity(
-            transaction_id="",
+            transaction_id=random_string,
             transaction_info=f'commented in {community_name}',
             user_address=u_adr
         )
