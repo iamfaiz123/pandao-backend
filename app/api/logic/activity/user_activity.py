@@ -10,15 +10,16 @@ from models import dbsession as conn, BluePrint, Community as Com, User, Partici
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.exc import SQLAlchemyError
 
-
 from pydantic import BaseModel
 from typing import List
+
 
 class UserActivityModel(BaseModel):
     transaction_id: str
     user_address: str
     name: str
     image_url: str
+
 
 def get_user_activity():
     try:
@@ -27,7 +28,8 @@ def get_user_activity():
             UserActivity.transaction_id,
             UserActivity.user_address,
             User.name,
-            UserMetaData.image_url
+            UserMetaData.image_url,
+            UserActivity.transaction_info
         ).join(
             User, UserActivity.user_address == User.public_address
         ).join(
@@ -35,10 +37,11 @@ def get_user_activity():
         ).all()
         for data in results:
             activity = {
-                'tx_id':data[0],
-                'user_address':data[1],
-                'user_name':data[2],
-                'user_image_url':data[3],
+                'tx_id': data[0],
+                'user_address': data[1],
+                'user_name': data[2],
+                'user_image_url': data[3],
+                'info': data[4],
             }
             response.append(activity)
         return response

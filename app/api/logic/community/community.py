@@ -1,5 +1,6 @@
 import uuid
 
+import requests
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
@@ -7,7 +8,8 @@ from sqlalchemy.orm import joinedload
 from app.api.forms.blueprint import DeployCommunity
 from app.api.forms.community import CommunityComment
 # from app.api.forms.blueprint import DeployCommunity
-from models import dbsession as conn, BluePrint, Community as Com, User, Participants, UserMetaData, CommunityComments
+from models import dbsession as conn, BluePrint, Community as Com, User, Participants, UserMetaData, CommunityComments, \
+    UserActivity, Community
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -84,6 +86,15 @@ def user_participate_in_community(user_addr: str, community_id: uuid.UUID):
         conn.add(participant)
         conn.commit()
 
+        community = conn.query(Community).filter(Community.id == community_id).first()
+        community_name = community.name
+        # add comment activity
+        activity = UserActivity(
+            transaction_id="",
+            transaction_info=f'participated in {community_name}',
+            user_address=user_addr
+        )
+
     except IntegrityError as e:
         conn.rollback()
         print(f"Integrity error occurred: {e}")
@@ -138,18 +149,18 @@ def check_user_community_status(user_addr: str, community_id: uuid.UUID):
             }
     except IntegrityError as e:
         conn.rollback()
-        logger.error(f"Integrity error occurred: {e}")
+
         raise HTTPException(status_code=400,
                             detail="Integrity error: possibly duplicate entry or foreign key constraint.")
 
     except SQLAlchemyError as e:
         conn.rollback()
-        logger.error(f"SQLAlchemy error occurred: {e}")
+
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
     except Exception as e:
         conn.rollback()
-        logger.error(f"Unexpected error occurred: {e}")
+
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -190,7 +201,17 @@ def add_community_comment(req: CommunityComment):
             commented_by=u_adr,
             comment=c
         )
+        # get user data and community data
+        community = conn.query(Community).filter(Community.id == c_id).first()
+        community_name = community.name
+        # add comment activity
+        activity = UserActivity(
+            transaction_id="",
+            transaction_info=f'commented in {community_name}',
+            user_address=u_adr
+        )
         conn.add(new_comment)
+        conn.add(activity)
         conn.commit()
 
     except IntegrityError as e:
@@ -208,3 +229,36 @@ def add_community_comment(req: CommunityComment):
         conn.rollback()
 
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+def get_community_metadata_details(community_id: uuid.UUID):
+    try:
+        # https://babylon-stokenet-gateway.radixdlt.com/state/entity/details
+        # get community component address
+        community = conn.query(Community).filter(Community.id == community_id).first()
+        url = "https://babylon-stokenet-gateway.radixdlt.com/state/entity/details"
+
+        # Define the JSON data
+        data = {
+            "addresses": [community.component_address],
+            "aggregation_level": "Vault",
+            "opt_ins": {
+                "ancestor_identities": False,
+                "component_royalty_vault_balance": False,
+                "explicit_metadata": [],
+                "non_fungible_include_nfids": True,
+                "package_royalty_vault_balance": False
+            }
+        }
+
+        # Make the request
+        tokens = {}
+
+        response = requests.post(url, json=data)
+        response = response.json()
+        for data in response['items']:
+            print(data)
+
+
+    finally:
+        pass

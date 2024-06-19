@@ -68,7 +68,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
 
                 activity = UserActivity(
                     transaction_id=tx_id,
-                    transaction_info=f'created a {temp}',
+                    transaction_info=f'created  {temp}',
                     user_address=user_address
                 )
                 conn.add(community)
