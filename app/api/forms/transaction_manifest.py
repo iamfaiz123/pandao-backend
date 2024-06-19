@@ -24,3 +24,4 @@ class BuyTokenWeightedDaoToken(BaseModel):
     userAddress: str = Field(..., description="wallet address of user")
     # community_id: uuid = Field(..., description="id of the community user want buy token from")
     tokenSupply: int = Field(..., description="token Supply user want to buy")
+    community_id: uuid.UUID = Field(..., description="community id")

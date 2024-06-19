@@ -74,6 +74,20 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 conn.add(community)
                 conn.add(activity)
                 conn.commit()
+            elif resources['event_type'] == 'TOKEN_BOUGHT' :
+                # in case of token bought , get community details and add activity
+                community_address = resources['component_address']
+                # get community names and detail
+                community = conn.query(Community).filter(Community.component_address == community_address).first()
+                token_bought = metadata['amount']
+                activity = UserActivity(
+                    transaction_id = tx_id,
+                    transaction_info=f'bought {token_bought} tokens in {community.name}',
+                    user_address=user_address
+                )
+                conn.add(activity)
+                conn.commit()
+
         except SQLAlchemyError as e:
             conn.rollback()
             # logger.error(f"SQLAlchemy error occurred: {e}")

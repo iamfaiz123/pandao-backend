@@ -256,8 +256,12 @@ def get_community_metadata_details(community_id: uuid.UUID):
 
         response = requests.post(url, json=data)
         response = response.json()
-        for data in response['items']:
-            print(data)
+        fungible_resources = response['items'][0]['fungible_resources']
+        for data in fungible_resources:
+            pass
+
+
+
 
 
     finally:
