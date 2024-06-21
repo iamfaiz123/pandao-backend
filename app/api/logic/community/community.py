@@ -197,7 +197,7 @@ def get_community_comments(c_id: uuid.UUID):
 
 
 def get_single_community(community_id: uuid.UUID):
-    communities = conn.query(Com).first()
+    communities = conn.query(Com).filter(Com.id == community_id).first()
     return communities
 
 
