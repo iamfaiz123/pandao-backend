@@ -19,14 +19,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
             "receipt_events": True
         }
     }
-    sql_query = """
-    ALTER TABLE community
-    ADD COLUMN total_token INT
-    """
-    conn.execute(text(sql_query))
 
-    # Commit the transaction
-    conn.commit()
 
     # Send a POST request with the JSON data
     response = requests.post(url, json=data)
