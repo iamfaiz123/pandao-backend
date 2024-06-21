@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime, Boolean, Enum, DECIMAL
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime, Boolean, Enum, DECIMAL, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
@@ -67,6 +67,9 @@ class Community(Base):
     token_address = Column(String)
     owner_token_address = Column(String)
     image = Column(String)
+    token_price = Column(Float)  # Assuming token price is stored as a float
+    token_buy_back_price = Column(Float)  # Assuming buy-back price is stored as a float
+    total_token = Column(Integer)
     owner_address = Column(String, ForeignKey('users.public_address'))
     community_comment: Mapped[list['CommunityComments']] = relationship("CommunityComments", back_populates="community")
 
@@ -76,6 +79,13 @@ class Participants(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     community_id = Column(UUID(as_uuid=True), ForeignKey('community.id'))
     user_addr = Column(String, ForeignKey('users.public_address'))
+
+
+class CommunityToken(Base):
+    __tablename__ = 'community_token'
+    community_id = Column(UUID(as_uuid=True), primary_key=True, nullable=False)
+    user_address = Column(String, ForeignKey('users.public_address'), primary_key=True)
+    token_owned = Column(Float)
 
 
 class CommunityComments(Base):

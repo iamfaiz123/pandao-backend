@@ -17,6 +17,7 @@ class DeployTokenWeightedDao(BaseModel):
     tokenPrice: float = Field(..., description="token price")
     tokenWithDrawPrice: float = Field(..., description="token withdraw price")
     communityImage: str = Field(..., description="community image")
+    description: str = Field(..., description="description of community ")
     tokenImage: str = Field(..., description="token image")
 
 

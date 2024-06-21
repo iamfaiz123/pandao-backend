@@ -15,10 +15,11 @@ def transaction_manifest_routes(app):
         token_withdraw_price = req.tokenWithDrawPrice
         organization_image = req.communityImage
         organization_token_image = req.tokenImage
+        description = req.description
         user_account = req.userAddress
         manifest = command_string = (
             f'CALL_FUNCTION\n'
-            f'Address("package_tdx_2_1p5vl40wrmr49mvjqzmchjjvcq5ctq5mad9he6svkymrzqm5236jsr8")\n'
+            f'Address("package_tdx_2_1p4fflpurcwspjdkv529jmhjagksqyfe5n2segv4gj3687ftpwye5fu")\n'
             f'"TokenWeigtedDao"\n'
             f'"initiate"\n'
             f'"{organization_name}"\n'
@@ -28,6 +29,7 @@ def transaction_manifest_routes(app):
             f'Decimal("{token_withdraw_price}")\n'
             f'"{organization_image}"\n'
             f'"{organization_token_image}"\n'
+            f'"{description}"\n'
             f';\n'
             f'CALL_METHOD\n'
             f'    Address("{user_account}")\n'

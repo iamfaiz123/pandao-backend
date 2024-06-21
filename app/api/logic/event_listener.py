@@ -1,6 +1,8 @@
-from http.client import HTTPException
+
 
 import requests
+from fastapi import HTTPException
+from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
 from models import Community, dbsession as conn, UserActivity
@@ -17,6 +19,14 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
             "receipt_events": True
         }
     }
+    sql_query = """
+    ALTER TABLE community
+    ADD COLUMN total_token INT
+    """
+    conn.execute(text(sql_query))
+
+    # Commit the transaction
+    conn.commit()
 
     # Send a POST request with the JSON data
     response = requests.post(url, json=data)
@@ -56,12 +66,15 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 community = Community(
                     name=metadata['community_name'],
                     component_address=metadata['component_address'],
-                    description='some random description',
+                    description=metadata['description'] ,
                     blueprint_slug='token-weight',
                     token_address=metadata['token_address'],
                     owner_token_address=metadata['owner_token_address'],
                     owner_address=user_address,
-                    image=metadata['community_image']
+                    token_price = metadata['token_price'],
+                    token_buy_back_price = metadata['token_buy_back_price'],
+                    image=metadata['community_image'] ,
+                    total_token = metadata['total_token']
                 )
 
                 # create user activity
@@ -89,6 +102,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 conn.commit()
 
         except SQLAlchemyError as e:
+            print(e)
             conn.rollback()
             # logger.error(f"SQLAlchemy error occurred: {e}")
             raise HTTPException(status_code=500, detail="Internal Server Error")
