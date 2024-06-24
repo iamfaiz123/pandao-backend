@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
 from models import dbsession as conn, User, UserMetaData
-from ....forms import UserLogin, UserSignupForm
+from ....forms import UserLogin, UserSignupForm, UserProfileUpdate
 from ....utils import ApiError
 import logging
 
@@ -104,3 +104,35 @@ def check_user_exist(public_address: str):
     except Exception as e:
         logging.error("Error getting user signup status: %s", e)
         raise HTTPException()
+
+
+def update_user_profile(req: UserProfileUpdate):
+    try:
+        user_meta_data = conn.query(UserMetaData).filter(UserMetaData.user_address == req.public_address).first()
+        if user_meta_data is None:
+            return {
+                "status": 404,
+                "cause": "user with these credentials does not exist"
+            }
+
+        if req.about is not None:
+            user_meta_data.about = req.about
+        if req.image_url is not None:
+            user_meta_data.image_url = req.image_url
+        if req.tiktok is not None:
+            user_meta_data.tiktok = req.tiktok
+        if req.x_url is not None:
+            user_meta_data.x_url = req.x_url
+        # if req.website_url is not None:
+        #     user_meta_data.website_url = req.website_url
+        if req.linkedin is not None:
+            user_meta_data.linkedin = req.linkedin
+
+        conn.commit()
+        conn.refresh(user_meta_data)
+        return user_meta_data
+
+    except Exception as e:
+        conn.rollback()
+        logging.error(e)
+        return ApiError("Something went wrong, we're working on it", 500).as_http_response()

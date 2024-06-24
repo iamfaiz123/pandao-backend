@@ -9,7 +9,7 @@ from .forms.transaction_manifest import TransactionSubmit
 # from .forms.blueprint import DeployCommunity
 from .logic import health as health_handler
 from .logic.activity.user_activity import get_user_activity, UserActivityModel
-from .logic.auth.users import user_login_req, user_sign_up, check_user_exist, get_user_detail
+from .logic.auth.users import user_login_req, user_sign_up, check_user_exist, get_user_detail, update_user_profile
 from .logic.blueprint import add_blueprint as add_blueprint_logic
 from .forms import *
 from .logic.blueprint.blueprint import get_all_blueprints, get_blueprint
@@ -45,6 +45,10 @@ def load_server(app):
     @app.get('/user/details/{public_address}', status_code=status.HTTP_200_OK, tags=(['user-detail']))
     def get_user_details_route(public_address: str):
         return get_user_detail(public_address)
+
+    @app.patch('/user/update-user', status_code=status.HTTP_200_OK , tags=(['user-detail']))
+    def update_user_route(req: UserProfileUpdate):
+        return update_user_profile(req)
 
     @app.post('/user/login', status_code=status.HTTP_201_CREATED, tags=(['user-auth']))
     def register(req: UserLogin):

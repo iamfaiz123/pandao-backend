@@ -19,7 +19,7 @@ def transaction_manifest_routes(app):
         user_account = req.userAddress
         manifest = command_string = (
             f'CALL_FUNCTION\n'
-            f'Address("package_tdx_2_1p4fflpurcwspjdkv529jmhjagksqyfe5n2segv4gj3687ftpwye5fu")\n'
+            f'Address("package_tdx_2_1ph4c38vjhnn6hfvh50rxhcxsms0cy0hnuwhdv6t426n2y550f57nzt")\n'
             f'"TokenWeigtedDao"\n'
             f'"initiate"\n'
             f'"{organization_name}"\n'
