@@ -1,11 +1,9 @@
-
-
 import requests
 from fastapi import HTTPException
 from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, NoResultFound
 
-from models import Community, dbsession as conn, UserActivity
+from models import Community, dbsession as conn, UserActivity, CommunityToken
 
 
 ## pending , add logger
@@ -19,7 +17,6 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
             "receipt_events": True
         }
     }
-
 
     # Send a POST request with the JSON data
     response = requests.post(url, json=data)
@@ -59,15 +56,17 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 community = Community(
                     name=metadata['community_name'],
                     component_address=metadata['component_address'],
-                    description=metadata['description'] ,
+                    description=metadata['description'],
                     blueprint_slug='token-weight',
                     token_address=metadata['token_address'],
                     owner_token_address=metadata['owner_token_address'],
                     owner_address=user_address,
-                    token_price = metadata['token_price'],
-                    token_buy_back_price = metadata['token_buy_back_price'],
-                    image=metadata['community_image'] ,
-                    total_token = metadata['total_token']
+                    token_price=metadata['token_price'],
+                    token_buy_back_price=metadata['token_buy_back_price'],
+                    image=metadata['community_image'],
+                    total_token=metadata['total_token'],
+                    funds=0,
+                    token_bought=0
                 )
 
                 # create user activity
@@ -80,19 +79,70 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 conn.add(community)
                 conn.add(activity)
                 conn.commit()
-            elif resources['event_type'] == 'TOKEN_BOUGHT' :
+            elif resources['event_type'] == 'TOKEN_BOUGHT':
                 # in case of token bought , get community details and add activity
                 community_address = resources['component_address']
                 # get community names and detail
                 community = conn.query(Community).filter(Community.component_address == community_address).first()
+                community.funds += metadata['amount_paid']
+                community.token_bought += metadata['amount']
                 token_bought = metadata['amount']
+                try:
+                    # Attempt to retrieve the existing row
+                    community_token = conn.query(CommunityToken).filter_by(
+                        community_id=community.id,
+                        user_address=user_address
+                    ).one()
+                    community_token.token_owned += float(token_bought)
+                    conn.commit()
+
+
+                except NoResultFound:
+                    community_token = CommunityToken(
+                        community_id=community.id,
+                        user_address=user_address,
+                        token_owned=float(token_bought)
+                    )
+                    conn.add(community_token)
+
                 activity = UserActivity(
-                    transaction_id = tx_id,
+                    transaction_id=tx_id,
                     transaction_info=f'bought {token_bought} tokens in {community.name}',
                     user_address=user_address
                 )
                 conn.add(activity)
                 conn.commit()
+
+            elif resources['event_type'] == 'TOKEN_SELL':
+                # in case of token bought , get community details and add activity
+                community_address = resources['component_address']
+                # get community names and detail
+                community = conn.query(Community).filter(Community.component_address == community_address).first()
+                community.funds -= metadata['amount_paid']
+                community.token_bought -= metadata['amount']
+                token_bought = metadata['amount']
+                try:
+                    # Attempt to retrieve the existing row
+                    community_token = conn.query(CommunityToken).filter_by(
+                        community_id=community.id,
+                        user_address=user_address
+                    ).one()
+                    community_token.token_owned -= float(token_bought)
+                    conn.commit()
+
+
+                except NoResultFound:
+                    pass
+                activity = UserActivity(
+                    transaction_id=tx_id,
+                    transaction_info=f'sold {token_bought} tokens in {community.name}',
+                    user_address=user_address
+                )
+                conn.add(activity)
+                conn.commit()
+
+                pass
+
 
         except SQLAlchemyError as e:
             print(e)

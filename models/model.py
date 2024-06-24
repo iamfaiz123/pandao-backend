@@ -70,7 +70,9 @@ class Community(Base):
     token_price = Column(Float)  # Assuming token price is stored as a float
     token_buy_back_price = Column(Float)  # Assuming buy-back price is stored as a float
     total_token = Column(Integer)
+    token_bought = Column(Integer)
     owner_address = Column(String, ForeignKey('users.public_address'))
+    funds = Column(Float)
     community_comment: Mapped[list['CommunityComments']] = relationship("CommunityComments", back_populates="community")
 
 
@@ -100,8 +102,9 @@ class CommunityComments(Base):
 
 # Create an engine
 engine = create_engine(
-    'postgresql://pandao_backend_user:OGGePTvQNfp97DMRJfhp0c52WbBCZFBL@dpg-cp8s5etds78s73c8pqhg-a.oregon-postgres.render.com/pandao_backend')
+    'postgresql://pandao_backend_fw67_user:jPMCLTHyKvp296K7vuC3l0TGhE72gS30@dpg-cpsnpsl6l47c73e9nc2g-a.oregon-postgres.render.com/pandao_backend_fw67')
 Base.metadata.create_all(engine)
+
 
 # Create a configured "Session" class
 Session = sessionmaker(bind=engine)
