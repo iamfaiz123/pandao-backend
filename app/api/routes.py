@@ -46,7 +46,7 @@ def load_server(app):
     def get_user_details_route(public_address: str):
         return get_user_detail(public_address)
 
-    @app.patch('/user/update-user', status_code=status.HTTP_200_OK , tags=(['user-detail']))
+    @app.patch('/user/update-user', status_code=status.HTTP_200_OK, tags=(['user-detail']))
     def update_user_route(req: UserProfileUpdate):
         return update_user_profile(req)
 
@@ -88,10 +88,10 @@ def load_server(app):
         return token_bucket_deploy_event_listener(req.tx_id, req.user_address)
 
     ## routes related to activity
-    @app.get('/activity', summary='get all the activity on the platform',
+    @app.get('/activity/{community_id}', summary='get all the activity on the platform',
              description="get all the activity on the platform", tags=(['user-activity ']))
-    def get_activity_route():
-        return get_user_activity()
+    def get_activity_route(community_id: uuid.UUID):
+        return get_user_activity(community_id)
 
     @app.get('/community/check/user_status', summary="check if user is participant of community", tags=(['community']))
     def check_user_community_status_route(user_addr: str, community_id: uuid.UUID):

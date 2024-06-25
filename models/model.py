@@ -26,6 +26,7 @@ class UserMetaData(Base):
     user_address: Mapped[str] = Column(String, ForeignKey('users.public_address'), primary_key=True)
     about: Mapped[str] = Column(String)
     image_url: Mapped[str] = Column(String)
+
     user: Mapped["User"] = relationship("User", back_populates="usermetadata")
 
 
@@ -35,6 +36,7 @@ class UserActivity(Base):
     # this contains a basic info about a user transaction in the DAO
     transaction_info: Mapped[str] = Column(String)
     activity_type: Mapped[str] = Column(String)
+    community_id = Column(UUID(as_uuid=True) )
     user_address: Mapped[str] = Column(String, ForeignKey('users.public_address'))
 
 

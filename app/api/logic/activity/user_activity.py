@@ -21,10 +21,10 @@ class UserActivityModel(BaseModel):
     image_url: str
 
 
-def get_user_activity():
+def get_user_activity(community_id: uuid):
     try:
         response = []
-        results = conn.query(
+        results = (conn.query(
             UserActivity.transaction_id,
             UserActivity.user_address,
             User.name,
@@ -34,7 +34,9 @@ def get_user_activity():
             User, UserActivity.user_address == User.public_address
         ).join(
             UserMetaData, User.public_address == UserMetaData.user_address
-        ).all()
+        ).filter(
+            UserActivity.community_id == community_id
+        ).all())
         for data in results:
             activity = {
                 'tx_id': data[0],

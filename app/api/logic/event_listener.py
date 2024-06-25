@@ -1,3 +1,5 @@
+import uuid
+
 import requests
 from fastapi import HTTPException
 from sqlalchemy import text
@@ -52,8 +54,10 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
         try:
             if resources['event_type'] == 'DEPLOYMENT':
                 # create a new community
+                community_id = uuid.uuid4()
                 temp = metadata['community_name']
                 community = Community(
+                    id=community_id,
                     name=metadata['community_name'],
                     component_address=metadata['component_address'],
                     description=metadata['description'],
@@ -74,7 +78,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 activity = UserActivity(
                     transaction_id=tx_id,
                     transaction_info=f'created  {temp}',
-                    user_address=user_address
+                    user_address=user_address,
+                    community_id=community_id
                 )
                 conn.add(community)
                 conn.add(activity)
@@ -84,9 +89,9 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 community_address = resources['component_address']
                 # get community names and detail
                 community = conn.query(Community).filter(Community.component_address == community_address).first()
-                community.funds += metadata['amount_paid']
-                community.token_bought += metadata['amount']
-                token_bought = metadata['amount']
+                community.funds += float(metadata['amount_paid'])
+                community.token_bought += float(metadata['amount'])
+                token_bought = float(metadata['amount'])
                 try:
                     # Attempt to retrieve the existing row
                     community_token = conn.query(CommunityToken).filter_by(
@@ -108,7 +113,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 activity = UserActivity(
                     transaction_id=tx_id,
                     transaction_info=f'bought {token_bought} tokens in {community.name}',
-                    user_address=user_address
+                    user_address=user_address,
+                    community_id=community.id
                 )
                 conn.add(activity)
                 conn.commit()
@@ -119,8 +125,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 # get community names and detail
                 community = conn.query(Community).filter(Community.component_address == community_address).first()
                 community.funds -= metadata['amount_paid']
-                community.token_bought -= metadata['amount']
-                token_bought = metadata['amount']
+                community.token_bought -= float(metadata['amount'])
+                token_bought = float(metadata['amount'])
                 try:
                     # Attempt to retrieve the existing row
                     community_token = conn.query(CommunityToken).filter_by(
@@ -136,7 +142,8 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 activity = UserActivity(
                     transaction_id=tx_id,
                     transaction_info=f'sold {token_bought} tokens in {community.name}',
-                    user_address=user_address
+                    user_address=user_address,
+                    community_id=community.id
                 )
                 conn.add(activity)
                 conn.commit()
