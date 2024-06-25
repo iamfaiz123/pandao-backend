@@ -124,7 +124,7 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 community_address = resources['component_address']
                 # get community names and detail
                 community = conn.query(Community).filter(Community.component_address == community_address).first()
-                community.funds -= metadata['amount_paid']
+                community.funds -= float( metadata['amount_paid'] )
                 community.token_bought -= float(metadata['amount'])
                 token_bought = float(metadata['amount'])
                 try:

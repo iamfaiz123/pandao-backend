@@ -81,3 +81,50 @@ def transaction_manifest_routes(app):
         # Log the error e
         print(e)
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+    @app.post('/manifest/build/sell_token/token_weighted_dao', tags=(['manifest_builder']))
+    def sell_token_token_weighted_dao(req: BuyTokenWeightedDaoToken):
+        try:
+            community = conn.query(Community).filter(Community.id == req.community_id).first()
+            account_address = req.userAddress
+            XRD_take = req.tokenSupply + 3
+            community_address = community.component_address
+            token_address = community.token_address
+            token_take = req.tokenSupply
+
+            transaction_string = f"""
+           CALL_METHOD
+               Address("{account_address}")
+               "withdraw"
+               Address("{token_address}")
+               Decimal("{XRD_take}")
+           ;
+
+           TAKE_FROM_WORKTOP
+               Address("{token_address}")
+               Decimal("{XRD_take}")
+               Bucket("bucket1")
+           ;
+
+           CALL_METHOD
+               Address("{community_address}")
+               "withdraw_power"
+               Bucket("bucket1")
+           ;
+
+           CALL_METHOD
+               Address("{account_address}")
+               "deposit_batch"
+               Expression("ENTIRE_WORKTOP")
+           ;
+           """
+            return transaction_string
+
+        except SQLAlchemyError as e:
+            # Log the error e
+            print(e)
+            raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+
+
