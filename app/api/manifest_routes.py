@@ -87,7 +87,7 @@ def transaction_manifest_routes(app):
         try:
             community = conn.query(Community).filter(Community.id == req.community_id).first()
             account_address = req.userAddress
-            XRD_take = req.tokenSupply + 3
+            XRD_take = req.tokenSupply
             community_address = community.component_address
             token_address = community.token_address
             token_take = req.tokenSupply
