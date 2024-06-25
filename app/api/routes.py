@@ -17,7 +17,7 @@ from .logic.blueprint.blueprint import get_all_blueprints, get_blueprint
 from .logic.community import get_community
 from .logic.community.community import create_community, get_user_community, check_user_community_status, \
     user_participate_in_community, get_community_participants, get_community_comments, add_community_comment, \
-    get_single_community, get_community_metadata_details
+    get_single_community, get_community_metadata_details, get_community_tokens
 from .logic.event_listener import token_bucket_deploy_event_listener
 from .utils.presignsignature import generate_signature
 
@@ -125,3 +125,7 @@ def load_server(app):
     @app.get('/community/detail/metadata/{c_id}', summary="get community detail", tags=(['community']))
     def get_community_metadata_route(c_id: uuid.UUID):
         return get_community_metadata_details(c_id)
+
+    @app.get('/community/token/{c_id}', summary="get community tokens holder details", tags=(['community']))
+    def get_community_token_route(c_id: uuid.UUID):
+        return get_community_tokens(c_id)

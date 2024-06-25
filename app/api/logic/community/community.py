@@ -1,7 +1,7 @@
 import uuid
 
 import requests
-from sqlalchemy import or_
+from sqlalchemy import or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 
@@ -9,7 +9,7 @@ from app.api.forms.blueprint import DeployCommunity
 from app.api.forms.community import CommunityComment
 # from app.api.forms.blueprint import DeployCommunity
 from models import dbsession as conn, BluePrint, Community as Com, User, Participants, UserMetaData, CommunityComments, \
-    UserActivity, Community
+    UserActivity, Community, CommunityToken
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -27,12 +27,14 @@ class CommunityCreate:
 import random
 import string
 
+
 def generate_random_string(length=12):
     # Define the characters to choose from (letters and digits)
     characters = string.ascii_letters + string.digits
     # Generate a random string of the specified length
     random_string = ''.join(random.choice(characters) for _ in range(length))
     return random_string
+
 
 def get_community():
     try:
@@ -278,3 +280,33 @@ def get_community_metadata_details(community_id: uuid.UUID):
 
     finally:
         pass
+
+
+def get_community_tokens(community_id: uuid.UUID):
+    # Query the database for tokens owned by users in the community
+    stmt = (
+        select(
+            CommunityToken.token_owned,
+            User.name,
+            UserMetaData.image_url,
+            User.public_address
+        )
+        .join(User, User.public_address == CommunityToken.user_address)
+        .join(UserMetaData, UserMetaData.user_address == CommunityToken.user_address)
+        .filter(CommunityToken.community_id == community_id)
+    )
+
+    result = conn.execute(stmt)
+    if not result:
+        raise HTTPException(status_code=404, detail="Community not found")
+    response = []
+    for data in result:
+        response.append(
+            {
+                "user_name": data[1],
+                "token_owned": data[0],
+                "image": data[2],
+                "public_address": data[3]
+            }
+        )
+    return response
