@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.forms.transaction_manifest import DeployTokenWeightedDao, BuyTokenWeightedDaoToken
-from models import Community
+from models import Community, Participants
 from models import dbsession as conn
 
 
@@ -44,9 +44,12 @@ def transaction_manifest_routes(app):
      try:
         community = conn.query(Community).filter(Community.id == req.community_id).first()
         account_address = req.userAddress
-        XRD_take = req.tokenSupply + 3
+        XRD_take = req.tokenSupply + community.token_price
         community_address = community.component_address
         token_take = req.tokenSupply
+        does_user_exist  = conn.query(Participants).filter(Participants.community_id == community.id, Participants.user_addr == account_address).first()
+        if not does_user_exist:
+            raise HTTPException(status_code=401, detail="not a community participant")
 
         transaction_string = f"""
         CALL_METHOD
