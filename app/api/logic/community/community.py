@@ -218,6 +218,10 @@ def add_community_comment(req: CommunityComment):
         random_string = generate_random_string()
         community = conn.query(Community).filter(Community.id == c_id).first()
         community_name = community.name
+        does_user_exist = conn.query(Participants).filter(Participants.community_id == c_id,
+                                                          Participants.user_addr == u_adr).first()
+        if not does_user_exist:
+            raise HTTPException(status_code=401, detail="not a community participant")
         # add comment activity
         activity = UserActivity(
             transaction_id=random_string,
