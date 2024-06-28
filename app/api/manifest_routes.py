@@ -1,7 +1,9 @@
+from datetime import datetime
+
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.api.forms.transaction_manifest import DeployTokenWeightedDao, BuyTokenWeightedDaoToken
+from app.api.forms.transaction_manifest import DeployTokenWeightedDao, BuyTokenWeightedDaoToken, DeployProposal
 from models import Community, Participants
 from models import dbsession as conn
 
@@ -128,3 +130,64 @@ def transaction_manifest_routes(app):
             # Log the error e
             print(e)
             raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+    @app.post('/manifest/build/praposal', tags=(['manifest_builder']))
+    def sell_token_token_weighted_dao(req: DeployProposal):
+        try:
+            community = conn.query(Community).filter(Community.id == req.community_id).first()
+            start_time = req.start_time
+            end_time = req.end_time
+
+            end_time_unix = int(end_time)  # Convert string to integer Unix timestamp
+            end_time_dt = datetime.datetime.utcfromtimestamp(end_time_unix)
+
+            # Extract year, month, day, hour, minute, second
+            end_year = end_time_dt.year
+            end_month = end_time_dt.month
+            end_day = end_time_dt.day
+            end_hour = end_time_dt.hour
+            end_minute = end_time_dt.minute
+            end_second = end_time_dt.second
+
+            start_time_unix = int(start_time)  # Convert string to integer Unix timestamp
+            start_time_dt = datetime.datetime.utcfromtimestamp(start_time_unix)
+
+            # Extract year, month, day, hour, minute, second
+            start_year = start_time_dt.year
+            start_month = start_time_dt.month
+            start_day = start_time_dt.day
+            start_hour = start_time_dt.hour
+            start_minute = start_time_dt.minute
+            start_second = start_time_dt.second
+
+            transaction_string = f"""
+                                    CALL_METHOD
+                                    Address("{community.component_address}")
+                                    "create_praposal"
+                                    "{req.praposal}"
+                                    {req.minimumquorum}u8
+                                    Tuple(
+                                    {start_year}u32 ,
+                                    {start_month}u8 ,
+                                    {start_day}u8 ,
+                                    {start_hour}u8 ,
+                                    {start_minute}u8 ,
+                                    {start_second}u8)
+                                    Tuple(
+                                   {end_year}u32 ,
+                                    {end_month}u8 ,
+                                    {end_day}u8 ,
+                                    {end_hour}u8 ,
+                                    {end_minute}u8 ,
+                                    {end_second}u8)
+                                    ;
+            """
+            return transaction_string
+
+        except SQLAlchemyError as e:
+            # Log the error e
+            print(e)
+            raise HTTPException(status_code=500, detail="Internal Server Error")
+
+

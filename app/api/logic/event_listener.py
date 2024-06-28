@@ -149,6 +149,10 @@ def token_bucket_deploy_event_listener(tx_id: str, user_address: str):
                 conn.commit()
 
                 pass
+            elif resources['event_type'] == 'PRAPOSAL':
+                pass
+
+
 
 
         except SQLAlchemyError as e:
