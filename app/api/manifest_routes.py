@@ -140,7 +140,7 @@ def transaction_manifest_routes(app):
             end_time = req.end_time
 
             end_time_unix = int(end_time)  # Convert string to integer Unix timestamp
-            end_time_dt = datetime.datetime.utcfromtimestamp(end_time_unix)
+            end_time_dt = datetime.utcfromtimestamp(end_time_unix)
 
             # Extract year, month, day, hour, minute, second
             end_year = end_time_dt.year
@@ -151,7 +151,7 @@ def transaction_manifest_routes(app):
             end_second = end_time_dt.second
 
             start_time_unix = int(start_time)  # Convert string to integer Unix timestamp
-            start_time_dt = datetime.datetime.utcfromtimestamp(start_time_unix)
+            start_time_dt = datetime.utcfromtimestamp(start_time_unix)
 
             # Extract year, month, day, hour, minute, second
             start_year = start_time_dt.year
